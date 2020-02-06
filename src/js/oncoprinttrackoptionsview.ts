@@ -194,8 +194,8 @@ export default class OncoprintTrackOptionsView {
                 'width': 120,
                 'display': 'none',
                 'list-style-type': 'none',
-                'padding-left': '6',
-                'padding-right': '6',
+                'padding-left': '6px',
+                'padding-right': '6px',
                 'float': 'right',
                 'background-color': 'rgb(255,255,255)',
                 'left':'0px', 'top': top + this.img_size + 'px'
