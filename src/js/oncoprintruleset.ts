@@ -741,11 +741,11 @@ class GradientRuleSet extends LinearInterpRuleSet {
         var self = this;
         var value_key = this.value_key;
         this.addRule(function(d) {
-            return d[NA_STRING] !== true && d[value_key] === null;
+            return d[NA_STRING] !== true && (d[value_key] === null || d[value_key] === undefined);
         }, {
             shapes: [{
                 type: 'rectangle',
-                fill: self.null_color
+                fill: function() {return self.null_color;}
             }],
             legend_label: params.null_legend_label || "Not a number",
             exclude_from_legend:false,
@@ -803,7 +803,7 @@ class GradientRuleSet extends LinearInterpRuleSet {
         const null_color = this.null_color;
 
         this.gradient_rule = this.addRule(function (d) {
-                return d[NA_STRING] !== true && d[value_key] !== null;
+                return d[NA_STRING] !== true && d[value_key] !== null && d[value_key] !== undefined;
             },
             {shapes: [{
                     type: 'rectangle',
