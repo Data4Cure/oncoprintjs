@@ -157,6 +157,7 @@ export default class OncoprintHeaderView {
                             'padding-right': '6px',
                             'float': 'right',
                             'background-color': 'rgb(255,255,255)',
+                            'border': '1px solid rgba(125,125,125,1)',
                             'left':'0px',
                             'top': headerTops[trackGroupIndex] + MENU_DOTS_SIZE,
                             'pointer-events':'auto'
