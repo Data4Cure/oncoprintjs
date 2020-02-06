@@ -208,8 +208,18 @@ export default class OncoprintHeaderView {
                                 $img.removeClass(TOGGLE_BTN_OPEN_CLASS);
                                 $dropdown.fadeOut(FADE_MS);
                             } else {
+                                // trying HTMLElement.offsetLeft as $.offset()
+                                // returns inaccurate values in some circumstances
+                                let offset;
+                                try {
+                                    offset = $img[0].offsetLeft;
+                                } catch {
+                                }
+                                if (offset === undefined) {
+                                    offset =  $img.offset().left;
+                                }
                                 populateDropdownOptions();
-                                $dropdown.css('left', $img.offset().left);
+                                $dropdown.css('left', offset);
                                 $img.addClass(TOGGLE_BTN_OPEN_CLASS);
                                 $dropdown.fadeIn(FADE_MS);
                                 this.closeDropdownsExcept($dropdown);
