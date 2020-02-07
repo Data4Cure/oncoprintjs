@@ -771,8 +771,13 @@ class GradientRuleSet extends LinearInterpRuleSet {
         } else {
             stop_points = intRange(colors.length).map(function(x) { return x/(colors.length -1); });
         }
-        return function(t:number) {
-            // 0 <= t <= 1
+
+        function makeColorString(color: RGBAColor) {
+            return "rgba(" + color.join(",") + ")";
+        }
+
+        return function(tr:number) {
+            var t = Math.max(Math.min(1, tr), 0);
             var begin_interval_index = binarysearch(stop_points, t, function(x) { return x; }, true);
             if (begin_interval_index === -1) {
                 return "rgba(0,0,0,1)";
