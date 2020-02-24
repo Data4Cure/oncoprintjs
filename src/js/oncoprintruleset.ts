@@ -53,6 +53,7 @@ export interface ICategoricalRuleSetParams extends IGeneralRuleSetParams {
     type: RuleSetType.CATEGORICAL;
     category_key: string; // key into data which gives category
     category_to_color?: {[category:string]:string};
+    category_to_order?: {[category:string]:number};
 }
 
 export interface IGradientRuleSetParams extends ILinearInterpRuleSetParams {
@@ -82,6 +83,7 @@ export interface IGradientAndCategoricalRuleSetParams extends IGeneralRuleSetPar
 
     category_key: string; // key into data which gives category
     category_to_color?: {[category:string]:string};
+    category_to_order?: {[category:string]:number};
 }
 
 export interface IBarRuleSetParams extends ILinearInterpRuleSetParams {
@@ -547,6 +549,7 @@ class ConditionRuleSet extends RuleSet {
 class CategoricalRuleSet extends LookupRuleSet {
     public readonly category_key:string;
     private readonly category_to_color:{[category:string]:string};
+    private readonly category_to_order:{[category:string]:number};
     private readonly getUnusedColor:(color?:string)=>string;
     constructor(params:Omit<ICategoricalRuleSetParams, "type">, omitNArule?:boolean) {
         super(params);
@@ -562,15 +565,16 @@ class CategoricalRuleSet extends LookupRuleSet {
 
         this.category_key = params.category_key;
         this.category_to_color = cloneShallow(ifndef(params.category_to_color, {}));
+        this.category_to_order = cloneShallow(ifndef(params.category_to_order, {}));
         this.getUnusedColor = makeUniqueColorGetter(objectValues(this.category_to_color).map(colorToHex));
         for (const category of Object.keys(this.category_to_color)) {
             const color = this.category_to_color[category];
-            this.addCategoryRule(category, color);
+            this.addCategoryRule(category, color, this.category_to_order[category]);
             this.getUnusedColor(color);
         }
     }
 
-    private addCategoryRule(category:string, color:string) {
+    private addCategoryRule(category:string, color:string, order?:number) { // TODO: push rule order here maybe add extra variable to interface
         const legend_rule_target:any = {};
         legend_rule_target[this.category_key] = category;
         const rule_params:RuleParams = {
@@ -580,6 +584,7 @@ class CategoricalRuleSet extends LookupRuleSet {
             }],
             legend_label: category,
             exclude_from_legend: false,
+            legend_order: order,
             legend_config: {'type': 'rule', 'target': legend_rule_target}
         };
         this.addRule(this.category_key, category, rule_params);
