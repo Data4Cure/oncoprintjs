@@ -41,6 +41,7 @@ export default class OncoprintLabelView {
     private drag_mouse_y:number|null;
     private scroll_y:number = 0;
     private ctx:CanvasRenderingContext2D;
+    private maximum_label_length = 18;
 
     constructor(private $canvas:JQuery<HTMLCanvasElement>, private model:OncoprintModel, private tooltip:OncoprintToolTip) {
         const view = this;
@@ -340,8 +341,12 @@ export default class OncoprintLabelView {
         this.renderAllLabels(model);
     }
 
-    private getMaximumLabelLength() {
-        return 18;
+    public getMaximumLabelLength() {
+        return this.maximum_label_length;
+    }
+
+    public setMaximumLabelLength(maximum_label_length:number) {
+        this.maximum_label_length = maximum_label_length;
     }
 
     public getWidth() {
