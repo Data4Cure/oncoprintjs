@@ -29,6 +29,7 @@ export type RuleSetParams = ILinearInterpRuleSetParams | ICategoricalRuleSetPara
     IGradientRuleSetParams |
     IBarRuleSetParams |
     IStackedBarRuleSetParams |
+    ICensoredRuleSetParams |
     IGradientAndCategoricalRuleSetParams |
     IGeneticAlterationRuleSetParams;
 
@@ -99,6 +100,14 @@ export interface IStackedBarRuleSetParams extends IGeneralRuleSetParams {
     fills?: string[];
 }
 
+export interface ICensoredRuleSetParams extends ILinearInterpRuleSetParams {
+    type: RuleSetType.CENSORED;
+    marker_key:string;
+    marker_fill?:string;
+    fill?: string;
+    negative_fill?:string;
+}
+
 export interface IGeneticAlterationRuleSetParams extends IGeneralRuleSetParams {
     type: RuleSetType.GENE;
     rule_params: GeneticAlterationRuleParams;
@@ -149,7 +158,8 @@ export enum RuleSetType {
     GRADIENT_AND_CATEGORICAL = "gradient+categorical",
     BAR = "bar",
     STACKED_BAR = "stacked_bar",
-    GENE = "gene"
+    GENE = "gene",
+    CENSORED = "censored",
 }
 
 export type RuleId = number;
@@ -648,7 +658,7 @@ class LinearInterpRuleSet extends ConditionRuleSet {
                     var range_spread = range[1] - range[0],
                         range_lower = range[0],
                         range_higher = range[1];
-                    if (plotType === 'bar') {
+                    if (plotType === 'bar' || plotType === 'censored') { // TODO: this is kind of ugly
                         if (rangeType === LinearInterpRangeType.NON_POSITIVE) {
                             // when data only contains non positive values
                             return (val - range_higher) / range_spread;
@@ -834,7 +844,7 @@ class BarRuleSet extends LinearInterpRuleSet {
     private negative_fill:string;
     private bar_rule?:RuleId;
 
-    constructor(params:IBarRuleSetParams) {
+    constructor(params:Omit<IBarRuleSetParams, "type">) {
         super(params);
         this.fill = params.fill || 'rgba(0,128,0,1)'; // green
         this.negative_fill = params.negative_fill || 'rgba(255,0,0,1)'; //red
@@ -971,6 +981,84 @@ class StackedBarRuleSet extends ConditionRuleSet {
         }
     }
 }
+
+class CensoredRuleSet extends BarRuleSet {
+    private marker_key:string;
+    private marker_fill?:string;
+
+    constructor(params:ICensoredRuleSetParams) {
+        super(params);
+        this.marker_key = params.marker_key;
+        this.marker_fill = params.marker_fill || 'rgba(0,0,0,1)'; //black
+
+        var self = this;
+        this.addRule(function(d) {
+            return d[self.marker_key] === true;
+        }, {
+            shapes: [{
+                'type': 'line',
+                'stroke': self.marker_fill,
+                'stroke-width': '2',
+                'x1': '0%',
+                'x2': '100%',
+                'y1':'15%',
+                'y2':'15%',
+                'z':4
+            }, {
+                'type': 'line',
+                'stroke': self.marker_fill,
+                'stroke-width': '2',
+                'x1': '50%',
+                'x2': '50%',
+                'y1':'0%',
+                'y2':'30%',
+                'z':4
+            }],
+            legend_label: "Censored",
+            exclude_from_legend:false,
+            legend_config: {'type':'rule', 'target':{ [self.marker_key]:true } }
+        });
+    }
+}
+
+// class CensoredRuleSet extends RuleSet {
+//     private barRuleSet:BarRuleSet;
+//     private marker_key:string;
+//     private marker_fill?:string;
+    
+//     constructor(params:ICensoredRuleSetParams) {
+//         super(params);
+//         this.barRuleSet = new BarRuleSet(params);
+//         this.marker_key = params.marker_key;
+//         this.marker_fill = params.marker_fill || 'rgba(255,255,0,1)'; //yellow
+//     }
+
+//     // // RuleSet API
+//     // public apply(data:Datum, cell_width:number, cell_height:number, out_active_rules:ActiveRules|undefined, data_id_key:string&keyof Datum, important_ids?:ColumnProp<boolean>) {
+
+//     //     const shapes = [];
+//     //     // check the type of datum (categorical or continuous) and delegate
+//     //     // fetching of shapes to the appropriate RuleSet class
+//     //     for (let i = 0; i < data.length; i++) {
+//     //         const datum = data[i];
+//     //         if ( this.isCategorical(datum) ) {
+//     //             shapes.push( this.categoricalRuleSet.apply([datum], cell_width, cell_height, out_active_rules, data_id_key, important_ids)[0] );
+//     //         } else {
+//     //             shapes.push( this.gradientRuleSet.apply([datum], cell_width, cell_height, out_active_rules, data_id_key, important_ids)[0] );
+//     //         }
+//     //     }
+//     //     return this.barRuleSet
+//     //     return shapes;
+//     // }
+
+//     // RuleSet API
+//     public getRulesWithId(datum?:Datum) {
+//         const barRules = this.barRuleSet.getRulesWithId(datum);
+//         const rules = [].concat(barRules);
+//         return rules;
+//     }
+
+// }
 
 class GeneticAlterationRuleSet extends LookupRuleSet {
     constructor(params:IGeneticAlterationRuleSetParams) {
@@ -1125,6 +1213,9 @@ export default function (params:RuleSetParams) {
             break;
         case RuleSetType.STACKED_BAR:
             ret = new StackedBarRuleSet(params as IStackedBarRuleSetParams);
+            break;
+        case RuleSetType.CENSORED:
+            ret = new CensoredRuleSet(params as ICensoredRuleSetParams);
             break;
         case RuleSetType.GENE:
         default:
