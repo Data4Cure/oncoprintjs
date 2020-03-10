@@ -181,13 +181,18 @@ export default class OncoprintHeaderView {
                                     option.disabled,
                                     function(evt) {
                                         evt.stopPropagation();
-                                        option.onClick && option.onClick(trackGroupIndex);
+                                        option.onClick && option.onClick(trackGroupIndex) && closeDropdown();
                                         populateDropdownOptions();
                                     }
                                 ));
                             }
                         });
                     };
+
+                    const closeDropdown = () => {
+                        $img.removeClass(TOGGLE_BTN_OPEN_CLASS);
+                        $dropdown.fadeOut(FADE_MS);
+                    }
 
                     // add dropdown button
                     const $img = $("<img/>")
@@ -206,8 +211,7 @@ export default class OncoprintHeaderView {
                         .on("click", (evt)=>{
                             evt.stopPropagation();
                             if ($dropdown.is(":visible")) {
-                                $img.removeClass(TOGGLE_BTN_OPEN_CLASS);
-                                $dropdown.fadeOut(FADE_MS);
+                                closeDropdown();
                             } else {
                                 // trying HTMLElement.offsetLeft as $.offset()
                                 // returns inaccurate values in some circumstances

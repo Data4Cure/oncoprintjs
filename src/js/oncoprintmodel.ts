@@ -52,7 +52,7 @@ export type ActiveRules = {[ruleId:number]:boolean};
 export type ActiveRulesCount = {[ruleId:number]:number};
 export type TrackSortDirectionChangeCallback = (track_id:TrackId, dir:number)=>void;
 export type CustomTrackOption = {label?:string, separator?: boolean, onClick?:(id:TrackId)=>void, weight?:string, disabled?:boolean};
-export type CustomTrackGroupOption = {label?:string, separator?: boolean, onClick?:(id:TrackGroupIndex)=>void, weight?:()=>string, disabled?:()=>boolean};
+export type CustomTrackGroupOption = {label?:string, separator?: boolean, onClick?:(id:TrackGroupIndex)=>boolean, weight?:()=>string, disabled?:()=>boolean};
 export type UserTrackSpec<D> = {
     target_group?:TrackGroupIndex;
     cell_height?: number;
