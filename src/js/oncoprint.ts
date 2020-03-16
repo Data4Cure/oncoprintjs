@@ -98,6 +98,8 @@ export default class Oncoprint {
     private target_dummy_scroll_left:number;
     private target_dummy_scroll_top:number;
 
+    private copyright_notice: string;
+
     private getCellViewHeight = ()=>this.cell_view.getVisibleAreaHeight(this.model);
 
     constructor(private ctr_selector:string, private width:number, params?:InitParams) {
@@ -1241,6 +1243,10 @@ export default class Oncoprint {
         this.resizeAndOrganizeAfterTimeout();
     }
 
+    public setCopyrightNotice(text: string) {
+        this.copyright_notice = text;
+    }
+
     public onCellMouseOver(callback:CellMouseOverCallback) {
         this.cell_mouse_over_callbacks.push(callback);
     }
@@ -1281,7 +1287,14 @@ export default class Oncoprint {
         const cell_view_group = this.cell_view.toSVGGroup(this.model, cell_view_group_x, 0);
         everything_group.appendChild(cell_view_group);
 
-        everything_group.appendChild(this.legend_view.toSVGGroup(this.model, 0, cell_view_group.getBBox().y + cell_view_group.getBBox().height+20));
+        const legend_view_group = this.legend_view.toSVGGroup(this.model, 0, cell_view_group.getBBox().y + cell_view_group.getBBox().height+20);
+        everything_group.appendChild(legend_view_group);
+
+        if (this.copyright_notice) {
+            let notice_group = svgfactory.group(0, everything_group.getBBox().y + everything_group.getBBox().height + 20);
+            notice_group.appendChild(svgfactory.text(this.copyright_notice, 0, 0, 12, 'Arial', 'bold'));
+            everything_group.append(notice_group);
+        }
 
         const everything_box = everything_group.getBBox();
         const everything_width = everything_box.x + everything_box.width;
@@ -1293,6 +1306,9 @@ export default class Oncoprint {
             bgrect.setAttribute('width', everything_width as any);
             bgrect.setAttribute('height', everything_height as any);
         }
+
+        
+
         root.parentNode.removeChild(root);
 
         return root;
@@ -1319,8 +1335,8 @@ export default class Oncoprint {
         const container = document.createElement("div");
         container.appendChild(svg);
         const svg_data_str = container.innerHTML;
-        const svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
-
+        // const svg_data_uri = "data:image/svg+xml;base64,"+window.btoa(svg_data_str);
+        const svg_data_uri = "data:image/svg+xml;charset=utf-8,"+window.encodeURIComponent(svg_data_str);
         const ctx = canvas.getContext('2d');
         ctx.setTransform(resolution,0,0,resolution,0,0);
         const img = new Image();
