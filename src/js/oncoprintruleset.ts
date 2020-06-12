@@ -1021,45 +1021,6 @@ class CensoredRuleSet extends BarRuleSet {
     }
 }
 
-// class CensoredRuleSet extends RuleSet {
-//     private barRuleSet:BarRuleSet;
-//     private marker_key:string;
-//     private marker_fill?:string;
-    
-//     constructor(params:ICensoredRuleSetParams) {
-//         super(params);
-//         this.barRuleSet = new BarRuleSet(params);
-//         this.marker_key = params.marker_key;
-//         this.marker_fill = params.marker_fill || 'rgba(255,255,0,1)'; //yellow
-//     }
-
-//     // // RuleSet API
-//     // public apply(data:Datum, cell_width:number, cell_height:number, out_active_rules:ActiveRules|undefined, data_id_key:string&keyof Datum, important_ids?:ColumnProp<boolean>) {
-
-//     //     const shapes = [];
-//     //     // check the type of datum (categorical or continuous) and delegate
-//     //     // fetching of shapes to the appropriate RuleSet class
-//     //     for (let i = 0; i < data.length; i++) {
-//     //         const datum = data[i];
-//     //         if ( this.isCategorical(datum) ) {
-//     //             shapes.push( this.categoricalRuleSet.apply([datum], cell_width, cell_height, out_active_rules, data_id_key, important_ids)[0] );
-//     //         } else {
-//     //             shapes.push( this.gradientRuleSet.apply([datum], cell_width, cell_height, out_active_rules, data_id_key, important_ids)[0] );
-//     //         }
-//     //     }
-//     //     return this.barRuleSet
-//     //     return shapes;
-//     // }
-
-//     // RuleSet API
-//     public getRulesWithId(datum?:Datum) {
-//         const barRules = this.barRuleSet.getRulesWithId(datum);
-//         const rules = [].concat(barRules);
-//         return rules;
-//     }
-
-// }
-
 class GeneticAlterationRuleSet extends LookupRuleSet {
     constructor(params:IGeneticAlterationRuleSetParams) {
         super(params);
